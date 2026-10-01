@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Microsserviço do Gateway API criado com FastAPI
+  ai-platform-api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.api
+    container_name: enterprise_ai_api_gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app
+      - REDIS_HOST=finops-cache-db
+    depends_on:
+      - finops-cache-db
+
+  # Camada FinOps de Cache Semântico de Alta Performance (Redis)
+  finops-cache-db:
+    image: redis/redis-stack-server:latest
+    container_name: finops_redis_vector_cache
+    ports:
+      - "6379:6379"
+      - "8001:8001" # Dashboard de visualização do Redis Insight
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
